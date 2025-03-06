@@ -16,6 +16,10 @@
       {
         "command": "gitlab-helper.projects",
         "title": "获取项目列表"
+      },
+      {
+        "command": "gitlab-helper.git",
+        "title": "获取 Git 分支列表"
       }
     ],
     "configuration": {
@@ -34,6 +38,9 @@
       }
     }
   },
+  "extensionDependencies": [
+    "vscode.git"
+  ],
   "scripts": {
     "vscode:prepublish": "pnpm run package",
     "compile": "pnpm run check-types && pnpm run lint && node esbuild.js",
