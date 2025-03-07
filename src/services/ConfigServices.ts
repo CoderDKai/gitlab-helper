@@ -1,4 +1,6 @@
 import * as vscode from 'vscode';
+import { GetBranchesRequest } from './gitlab-api';
+import * as cp from 'child_process';
 
 export class ConfigService {
   static async getGitlabToken(): Promise<string> {
@@ -33,5 +35,44 @@ export class ConfigService {
       }
     }
     return baseUrl || 'https://gitlab.com';
+  }
+
+  
+  // 获取git远程仓库的url
+  private static getGitRemoteUrl(repoPath: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      cp.exec('git remote get-url origin', {cwd: repoPath}, (error, stdout, stderr) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(stdout.trim());
+        }
+      });
+    });
+  }
+
+  // 从git远程仓库的url中提取项目id
+  private static async extractEncodedProjectIdFromUrl(url: string): Promise<string> {
+    const baseURL = await ConfigService.getGitlabBaseUrl();
+    const hostname = new URL(baseURL).hostname;
+    // 支持两种格式
+    // 1. SSH: git@gitlab.com:username/project-name.git
+    // 2. HTTP: https://gitlab.com/username/project-name.git
+    const regex = new RegExp(`${hostname}[/:](.+?)\\.git$`);
+    const match = url.match(regex);
+    if (match && match[1]) {
+      return encodeURIComponent(match[1]);
+    }
+    return '';
+  }
+
+  static async getURLEncodedProjectId() {
+    const rootPath = vscode.workspace.rootPath;
+    if (!rootPath) {
+      return '';
+    }
+    const gitRemoteUrl = await ConfigService.getGitRemoteUrl(rootPath);
+    const encodedProjectId = await ConfigService.extractEncodedProjectIdFromUrl(gitRemoteUrl);
+    return encodedProjectId;
   }
 }

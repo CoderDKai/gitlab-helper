@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
-import { ProjectCommand } from './commands/ProjectCommand';
+import { MergeRequestCommand } from './commands/MergeCommand';
 
 export async function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
-		ProjectCommand.register(context)
+		MergeRequestCommand.register(context),
 	);
 }
 

@@ -1,42 +1,39 @@
+import * as vscode from 'vscode';
 import { ConfigService } from "./ConfigServices";
 import axios, { AxiosInstance } from 'axios';
+import { GetBranchesParams } from './gitlab-api';
 
 export class GitLabService {
   private client: AxiosInstance;
-
-  constructor(baseUrl?: string, token?: string) {
+  private static instance: GitLabService;
+  private projectId?: string;
+  
+  constructor(baseUrl?: string, token?: string, projectId?: string) {
     this.client = axios.create({
       baseURL: `${baseUrl}/api/v4`,
       headers: {
         'Private-Token': token,
       }
     });
+    this.projectId = projectId;
   }
 
-  async init() {
-    const baseUrl = await ConfigService.getGitlabBaseUrl();
-    const token = await ConfigService.getGitlabToken();
-    this.client = axios.create({
-      baseURL: `${baseUrl}/api/v4`,
-      headers: {
-        'Private-Token': token,
-      }
-    });
+  static async getInstance() {
+    if (!GitLabService.instance) {
+      const baseUrl = await ConfigService.getGitlabBaseUrl();
+      const token = await ConfigService.getGitlabToken();
+      const encodedProjectId = await ConfigService.getURLEncodedProjectId();
+      GitLabService.instance = new GitLabService(baseUrl, token, encodedProjectId);
+    }
+    return GitLabService.instance;
   }
 
-  async getProjects() {
-    try {
-      const response = await this.client.get('/projects', {
-        params: {
-          membership: true,
-          per_page: 100,
-        }
-      });
-      return response.data;
-    }
-    catch (error) {
-      console.error('获取项目列表失败:', error);
-      throw error;
-    }
+  // 获取分支列表
+  async getBranches(params: GetBranchesParams) {
+    return this.client.get(`/projects/${this.projectId}/repository/branches`, { params });
+  }
+
+  async getMergeRequests(params: GetMergeRequestsParams) {
+    
   }
 }
