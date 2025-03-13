@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { GetBranchesRequest } from './gitlab-api';
 import * as cp from 'child_process';
 
 export class ConfigService {
@@ -17,7 +16,7 @@ export class ConfigService {
         await config.update('personalToken', token, true);
       }
     }
-    return token || '';
+    return token ?? '';
   }
 
   static async getGitlabBaseUrl(): Promise<string> {
@@ -34,7 +33,7 @@ export class ConfigService {
         await config.update('instanceUrl', result.endsWith('/') ? result.slice(0, -1) : result, true);
       }
     }
-    return baseUrl || 'https://gitlab.com';
+    return baseUrl ?? 'https://gitlab.com';
   }
 
   
@@ -59,19 +58,19 @@ export class ConfigService {
     // 1. SSH: git@gitlab.com:username/project-name.git
     // 2. HTTP: https://gitlab.com/username/project-name.git
     const regex = new RegExp(`${hostname}[/:](.+?)\\.git$`);
-    const match = url.match(regex);
-    if (match && match[1]) {
+    const match = regex.exec(url);
+    if (match?.[1]) {
       return encodeURIComponent(match[1]);
     }
     return '';
   }
 
   static async getURLEncodedProjectId() {
-    const rootPath = vscode.workspace.rootPath;
-    if (!rootPath) {
+    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+    if (!workspaceFolder) {
       return '';
     }
-    const gitRemoteUrl = await ConfigService.getGitRemoteUrl(rootPath);
+    const gitRemoteUrl = await ConfigService.getGitRemoteUrl(workspaceFolder.uri.fsPath);
     const encodedProjectId = await ConfigService.extractEncodedProjectIdFromUrl(gitRemoteUrl);
     return encodedProjectId;
   }
