@@ -16,6 +16,23 @@
       {
         "command": "gitlab-helper.helloWorld",
         "title": "Hello World"
+      },
+      {
+        "command": "gitlab-helper.login",
+        "title": "GitLab: 登录"
+      },
+      {
+        "command": "gitlab-helper.logout",
+        "title": "GitLab: 登出"
+      },
+      {
+        "command": "gitlab-helper.viewMenu.settings",
+        "title": "设置",
+        "icon": "$(gear)"
+      },
+      {
+        "command": "gitlab-helper.viewMenu.logout",
+        "title": "退出登录"
       }
     ],
     "viewsContainers": {
@@ -30,8 +47,31 @@
     "views": {
       "gitlab-helper": [
         {
+          "type": "webview",
           "id": "gitlabHelperWelcome",
-          "name": "欢迎"
+          "name": "GitLab"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "gitlab-helper.viewMenu.settings",
+          "when": "view == gitlabHelperWelcome",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "gitlab-helper.viewMenu.logout",
+          "when": "view == gitlabHelperWelcome",
+          "group": "inline"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "gitlab-helper.viewMenu.logout",
+          "when": "false"
         }
       ]
     }

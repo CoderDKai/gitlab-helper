@@ -1,7 +1,10 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { WelcomeTreeProvider } from './welcomeTree';
+import { WelcomeWebviewProvider } from './webview/welcomeView';
+import { GitLabAuthManager } from './utils/authManager';
+import { registerAuthCommands } from './commands/authCommands';
+import { registerTreeViewMenus } from './treeViewMenus';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -11,11 +14,23 @@ export function activate(context: vscode.ExtensionContext) {
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "gitlab-helper" is now active!');
 
-	// 注册欢迎树视图
-	const welcomeTreeProvider = new WelcomeTreeProvider();
-	const welcomeTreeView = vscode.window.createTreeView('gitlabHelperWelcome', {
-		treeDataProvider: welcomeTreeProvider
-	});
+	// 初始化认证管理器
+	const authManager = new GitLabAuthManager(context);
+
+	// 注册认证相关命令
+	registerAuthCommands(context, authManager);
+	
+	// 注册树视图菜单
+	registerTreeViewMenus(context, authManager);
+
+	// 注册欢迎页面的 WebView
+	const welcomeWebviewProvider = new WelcomeWebviewProvider(context.extensionUri, authManager);
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider(
+			WelcomeWebviewProvider.viewType,
+			welcomeWebviewProvider
+		)
+	);
 
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
@@ -26,7 +41,7 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.showInformationMessage('Hello World from gitlab-helper!');
 	});
 
-	context.subscriptions.push(welcomeTreeView, disposable);
+	context.subscriptions.push(disposable);
 }
 
 // This method is called when your extension is deactivated
