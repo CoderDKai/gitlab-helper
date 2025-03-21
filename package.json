@@ -17,7 +17,24 @@
         "command": "gitlab-helper.helloWorld",
         "title": "Hello World"
       }
-    ]
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "gitlab-helper",
+          "title": "GitLab Helper",
+          "icon": "resources/gitlab.svg"
+        }
+      ]
+    },
+    "views": {
+      "gitlab-helper": [
+        {
+          "id": "gitlabHelperWelcome",
+          "name": "欢迎"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "pnpm run package",
