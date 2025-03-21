@@ -31,6 +31,10 @@ export class GitLabAuthManager {
         return !!this._credentials?.token;
     }
 
+    public getCredentials(): GitLabCredentials | undefined {
+        return this._credentials;
+    }
+
     public async authenticate(): Promise<boolean> {
         const token = await vscode.window.showInputBox({
             prompt: '请输入您的 GitLab Personal Access Token',

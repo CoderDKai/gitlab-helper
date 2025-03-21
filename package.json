@@ -33,6 +33,11 @@
       {
         "command": "gitlab-helper.viewMenu.logout",
         "title": "退出登录"
+      },
+      {
+        "command": "gitlab-helper.refreshMRs",
+        "title": "GitLab: 刷新 Merge Requests",
+        "icon": "$(refresh)"
       }
     ],
     "viewsContainers": {
@@ -57,6 +62,11 @@
       "view/title": [
         {
           "command": "gitlab-helper.viewMenu.settings",
+          "when": "view == gitlabHelperWelcome",
+          "group": "navigation"
+        },
+        {
+          "command": "gitlab-helper.refreshMRs",
           "when": "view == gitlabHelperWelcome",
           "group": "navigation"
         }

@@ -3,6 +3,7 @@
 import * as vscode from 'vscode';
 import { WelcomeWebviewProvider } from './webview/welcomeView';
 import { GitLabAuthManager } from './utils/authManager';
+import { GitLabApiService } from './utils/gitlabApi';
 import { registerAuthCommands } from './commands/authCommands';
 import { registerTreeViewMenus } from './treeViewMenus';
 
@@ -16,6 +17,9 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// 初始化认证管理器
 	const authManager = new GitLabAuthManager(context);
+	
+	// 初始化GitLab API服务
+	const gitlabApiService = new GitLabApiService(authManager);
 
 	// 注册认证相关命令
 	registerAuthCommands(context, authManager);
@@ -24,12 +28,20 @@ export function activate(context: vscode.ExtensionContext) {
 	registerTreeViewMenus(context, authManager);
 
 	// 注册欢迎页面的 WebView
-	const welcomeWebviewProvider = new WelcomeWebviewProvider(context.extensionUri, authManager);
+	const welcomeWebviewProvider = new WelcomeWebviewProvider(context.extensionUri, authManager, gitlabApiService);
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(
 			WelcomeWebviewProvider.viewType,
 			welcomeWebviewProvider
 		)
+	);
+
+	// 注册刷新MR列表命令
+	context.subscriptions.push(
+		vscode.commands.registerCommand('gitlab-helper.refreshMRs', () => {
+			// 通知 WebView 刷新 MR 列表
+			welcomeWebviewProvider.refresh();
+		})
 	);
 
 	// The command has been defined in the package.json file
